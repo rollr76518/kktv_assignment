@@ -1,0 +1,26 @@
+{
+    "status": {
+        "type": "OK",
+        "subtype": null,
+        "message": null
+    },
+    "data": {
+        "announcement": null,
+        "notice": null,
+        "app_version": {
+            "android": {
+                "current_version": "0.9.24",
+                "must_update": true,
+                "update_message": "KKTV 新版上線，立即更新版本繼續享受最佳追劇體驗。",
+                "review_version": "0.9.28-prod-rc.208"
+            },
+            "ios": {
+                "current_version": "0.9.20",
+                "must_update": true,
+                "update_message": "KKTV 版本更新，立即更新版本繼續享受最佳追劇體驗。",
+                "review_version": "0.9.25"
+            }
+        },
+        "stage": ""
+    }
+}
