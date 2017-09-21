@@ -7,7 +7,7 @@ It's better if you commit as detail as possible.
 You can use any 3rd party library if you need.
 You can find some resource you may need in APISample.
 
-If you have any question , you can fire an issue or mail to ios.dev@kktv.me
+If you have any question , you can mail to ios.dev@kktv.me
 
 Please put your answer in a public repo, after you finish. Please mail to hr@kkstream.com.tw also attach repo link.
 

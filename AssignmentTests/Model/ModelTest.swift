@@ -1,5 +1,5 @@
 import XCTest
-@testable import Assignment1
+@testable import Assignment
 
 /************
  Write down Model Tests as possible as you can.

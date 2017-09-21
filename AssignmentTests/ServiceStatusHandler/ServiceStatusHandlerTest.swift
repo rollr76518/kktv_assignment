@@ -1,6 +1,6 @@
 
 import XCTest
-@testable import Assignment1
+@testable import Assignment
 
 /************
  Write down ServiceStatusHandler Tests as possible as you can
