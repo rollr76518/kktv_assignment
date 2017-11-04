@@ -76,6 +76,11 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
                 // Success
                 let statusCode = (response as! HTTPURLResponse).statusCode
                 print("URL Session Task Succeeded: HTTP \(statusCode)")
+                
+                if let json = try! JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String: Any] {
+                    let appVersion = AppVersion.init(json: json)
+                    callback(appVersion, json, nil)
+                }
             }
         })
         
