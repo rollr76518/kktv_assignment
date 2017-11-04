@@ -48,4 +48,19 @@ class ModelTests: XCTestCase {
         }
     }
 
+    func testSuccessCallback() {
+        let data = loadData(fileName: "success", type: "json")
+        if let appVersion = AppVersion.init(json: data) {
+            XCTAssertTrue(appVersion.must_update, "AppVersion parse wrong with success callback")
+        }
+        else {
+            XCTFail("AppVersion can't parse from json")
+        }
+    }
+    
+    func testFailCallback() {
+        let data = loadData(fileName: "fail", type: "json")
+        let appVersion = AppVersion.init(json: data)
+        XCTAssertNil(appVersion, "AppVersion shouldn't parse anything")
+    }
 }
