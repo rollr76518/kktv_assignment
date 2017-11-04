@@ -64,9 +64,7 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
         
-        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
-            self.retryCount -= 1
-            
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in            
             if let error = error {
                 // Failure
                 print("URL Session Task Failed: %@", error.localizedDescription);
@@ -86,14 +84,8 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
         
         task.taskDescription = FetchServiceStatus
 
-        if retryStatus == .reachMax {
-            cancelRequest(identifier: FetchServiceStatus, callback: {
-                print("cancelFinished")
-            })
-        }
+        cancelRequest(identifier: FetchServiceStatus, callback: nil)
         
-        retryCount += 1
-
         task.resume()
         session.finishTasksAndInvalidate()
     }
@@ -109,7 +101,6 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
             if allTasks.count > 0{
                 for task: URLSessionTask in allTasks as! [URLSessionDataTask]{
                     if task.taskDescription == identifier {
-                        self.retryCount -= 1
                         task.cancel()
                     }
                 }

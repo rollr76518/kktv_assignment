@@ -31,7 +31,8 @@ class AppVersion {
             let currentVersion = ios["current_version"] as! String
             self.suggest_update = currentVersion>clientVersion
         }
-        
-        return nil
+        else {
+            return nil
+        }
     }
 }
