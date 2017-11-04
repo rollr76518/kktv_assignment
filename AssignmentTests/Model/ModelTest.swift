@@ -52,6 +52,8 @@ class ModelTests: XCTestCase {
         let data = loadData(fileName: "success", type: "json")
         if let appVersion = AppVersion.init(json: data) {
             XCTAssertTrue(appVersion.must_update, "AppVersion parse wrong with success callback")
+            XCTAssertFalse(appVersion.suggest_update, "AppVersion parse wrong with success callback")
+            XCTAssertEqual(appVersion.update_message, "KKTV 版本更新，立即更新版本繼續享受最佳追劇體驗。", "AppVersion parse wrong with success callback")
         }
         else {
             XCTFail("AppVersion can't parse from json")
