@@ -1,16 +1,16 @@
 
 import Foundation
 
-protocol ServiceStatusDelegate:class{
+protocol ServiceStatusDelegate: class {
     func endSuccess()
     func endFailure()
     
-    func showVersionForceUpdateAlert(message:String)
-    func showVersionSuggestUpdateAlert(message:String)
+    func showVersionForceUpdateAlert(message: String)
+    func showVersionSuggestUpdateAlert(message: String)
 }
 
 class ServiceStatusHandler {
-    weak var delegate:ServiceStatusDelegate?
+    weak var delegate: ServiceStatusDelegate?
 
     /*******
      finish this function by handling response
@@ -18,9 +18,9 @@ class ServiceStatusHandler {
      MUST retry if not reach retry count. Hint:retryOrFail
      *******/
 
-    func start(apiHandler:ServiceStatusAPIDelegate = ServiceStatusAPI()){
+    func start(apiHandler: ServiceStatusAPIDelegate = ServiceStatusAPI()){
 
-        apiHandler.fetchServiceStatus() { ( version,json, error) -> Void in
+        apiHandler.fetchServiceStatus() { ( version, json, error) -> Void in
 
 //            self.delegate?.endSuccess()
 //            self.delegate?.endFailure()
@@ -29,7 +29,7 @@ class ServiceStatusHandler {
         }
     }
 
-    private func retryOrFail( apiHandler:ServiceStatusAPIDelegate,json:[String:Any]?,error:NSError?) {
+    private func retryOrFail(apiHandler: ServiceStatusAPIDelegate, json: [String: Any]?, error: NSError?) {
         var apiHandler = apiHandler
         if apiHandler.retryStatus == .reachMax {
             self.delegate?.endFailure()
