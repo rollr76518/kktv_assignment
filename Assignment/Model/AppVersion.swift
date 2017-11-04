@@ -2,11 +2,11 @@
 import Foundation
 
 class AppVersion {
-    private(set) var must_update:Bool = false
-    private(set) var suggest_update:Bool = false
-    private(set) var update_message:String = ""
+    private(set) var must_update: Bool = false
+    private(set) var suggest_update: Bool = false
+    private(set) var update_message: String = ""
 
-    fileprivate let clientVersion:String = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
+    fileprivate let clientVersion: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
 
     /***********
      Please finish this init function
@@ -20,7 +20,7 @@ class AppVersion {
      If current_version is bigger than clientVersion, set suggest_update to true, otherwise false
      **********/
 
-    init?(json:[String:Any]?){
+    init?(json: [String:Any]?) {
         return nil
     }
 }
