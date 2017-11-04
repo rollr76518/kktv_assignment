@@ -6,23 +6,23 @@ enum RetryStatus {
     case reachMax
 }
 
-typealias StatusAPICompletion = (AppVersion?, [String:Any]?, NSError?) -> Void
+typealias StatusAPICompletion = (AppVersion?, [String: Any]?, NSError?) -> Void
 
 protocol ServiceStatusAPIDelegate {
-    var retryCount:Int {set get}
-    var retryStatus:RetryStatus { get }
-    func fetchServiceStatus(callback:@escaping StatusAPICompletion)
+    var retryCount: Int {set get}
+    var retryStatus: RetryStatus { get }
+    func fetchServiceStatus(callback: @escaping StatusAPICompletion)
 }
 
 let ServiceStatusAPIDomain = "ServiceStatusAPIDomain"
 
-class ServiceStatusAPI:ServiceStatusAPIDelegate {
+class ServiceStatusAPI: ServiceStatusAPIDelegate {
 
-    private let retryMax:Int
-    var retryCount:Int
+    private let retryMax: Int
+    var retryCount: Int
 
-    private let session:URLSession
-    private let operationQueue:OperationQueue
+    private let session: URLSession
+    private let operationQueue: OperationQueue
 
     var retryStatus: RetryStatus {
         if retryCount >= retryMax {
@@ -32,7 +32,7 @@ class ServiceStatusAPI:ServiceStatusAPIDelegate {
         }
     }
 
-    init(max:Int = 3) {
+    init(max: Int = 3) {
         self.retryMax = max
         self.retryCount = 0
 
@@ -49,12 +49,12 @@ class ServiceStatusAPI:ServiceStatusAPIDelegate {
      2. convert API response to AppVersion model
      *************/
 
-    func fetchServiceStatus( callback:@escaping StatusAPICompletion) {
+    func fetchServiceStatus(callback: @escaping StatusAPICompletion) {
         let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
-        callback(nil,nil,error)
+        callback(nil, nil, error)
     }
 
-    private func cancelRequest(identifier:String,callback:(()->Void)?){
+    private func cancelRequest(identifier: String, callback: (()->Void)?){
 
         self.session.getTasksWithCompletionHandler({ (dataTask, uploadTask, downloadTask) -> Void in
 
