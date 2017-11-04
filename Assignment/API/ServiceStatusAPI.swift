@@ -15,6 +15,7 @@ protocol ServiceStatusAPIDelegate {
 }
 
 let ServiceStatusAPIDomain = "ServiceStatusAPIDomain"
+let FetchServiceStatus = "FetchServiceStatus"
 
 class ServiceStatusAPI: ServiceStatusAPIDelegate {
 
@@ -50,8 +51,46 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
      *************/
 
     func fetchServiceStatus(callback: @escaping StatusAPICompletion) {
-        let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
-        callback(nil, nil, error)
+//        let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
+        
+        let sessionConfig = URLSessionConfiguration.default
+        
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+        
+        guard let URL = URL(string: "https://test-api-ng.kktv.com.tw/v0/service_status") else {
+            return
+        }
+        
+        var request = URLRequest(url: URL)
+        request.httpMethod = "GET"
+        
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            self.retryCount -= 1
+            
+            if let error = error {
+                // Failure
+                print("URL Session Task Failed: %@", error.localizedDescription);
+                callback(nil, nil, error as NSError)
+            }
+            else {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+        })
+        
+        task.taskDescription = FetchServiceStatus
+
+        if retryStatus == .reachMax {
+            cancelRequest(identifier: FetchServiceStatus, callback: {
+                print("cancelFinished")
+            })
+        }
+        
+        retryCount += 1
+
+        task.resume()
+        session.finishTasksAndInvalidate()
     }
 
     private func cancelRequest(identifier: String, callback: (()->Void)?){
@@ -63,14 +102,15 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
             allTasks.addingObjects(from: downloadTask)
 
             if allTasks.count > 0{
-                for task:URLSessionTask in allTasks as! [URLSessionDataTask]{
-                    if task.taskDescription == identifier{
+                for task: URLSessionTask in allTasks as! [URLSessionDataTask]{
+                    if task.taskDescription == identifier {
+                        self.retryCount -= 1
                         task.cancel()
                     }
                 }
             }
 
-            if callback != nil{
+            if callback != nil {
                 callback!()
             }
         })
