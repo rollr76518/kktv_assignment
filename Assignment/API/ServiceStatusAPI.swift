@@ -84,9 +84,7 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
         
         task.taskDescription = FetchServiceStatus
 
-        cancelRequest(identifier: FetchServiceStatus, callback: {
-            print("cancelFinished")
-        })
+        cancelRequest(identifier: FetchServiceStatus, callback: nil)
         
         task.resume()
         session.finishTasksAndInvalidate()
