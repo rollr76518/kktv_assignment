@@ -6,23 +6,24 @@ enum RetryStatus {
     case reachMax
 }
 
-typealias StatusAPICompletion = (AppVersion?, [String:Any]?, NSError?) -> Void
+typealias StatusAPICompletion = (AppVersion?, [String: Any]?, NSError?) -> Void
 
 protocol ServiceStatusAPIDelegate {
-    var retryCount:Int {set get}
-    var retryStatus:RetryStatus { get }
-    func fetchServiceStatus(callback:@escaping StatusAPICompletion)
+    var retryCount: Int {set get}
+    var retryStatus: RetryStatus { get }
+    func fetchServiceStatus(callback: @escaping StatusAPICompletion)
 }
 
 let ServiceStatusAPIDomain = "ServiceStatusAPIDomain"
+let FetchServiceStatus = "FetchServiceStatus"
 
-class ServiceStatusAPI:ServiceStatusAPIDelegate {
+class ServiceStatusAPI: ServiceStatusAPIDelegate {
 
-    private let retryMax:Int
-    var retryCount:Int
+    private let retryMax: Int
+    var retryCount: Int
 
-    private let session:URLSession
-    private let operationQueue:OperationQueue
+    private let session: URLSession
+    private let operationQueue: OperationQueue
 
     var retryStatus: RetryStatus {
         if retryCount >= retryMax {
@@ -32,7 +33,7 @@ class ServiceStatusAPI:ServiceStatusAPIDelegate {
         }
     }
 
-    init(max:Int = 3) {
+    init(max: Int = 3) {
         self.retryMax = max
         self.retryCount = 0
 
@@ -49,12 +50,55 @@ class ServiceStatusAPI:ServiceStatusAPIDelegate {
      2. convert API response to AppVersion model
      *************/
 
-    func fetchServiceStatus( callback:@escaping StatusAPICompletion) {
-        let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
-        callback(nil,nil,error)
+    func fetchServiceStatus(callback: @escaping StatusAPICompletion) {
+//        let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
+        
+        let sessionConfig = URLSessionConfiguration.default
+        
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+        
+        guard let URL = URL(string: "https://test-api-ng.kktv.com.tw/v0/service_status") else {
+            return
+        }
+        
+        var request = URLRequest(url: URL)
+        request.httpMethod = "GET"
+        
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            self.retryCount -= 1
+            
+            if let error = error {
+                // Failure
+                print("URL Session Task Failed: %@", error.localizedDescription);
+                callback(nil, nil, error as NSError)
+            }
+            else {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+                
+                if let json = try! JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String: Any] {
+                    let appVersion = AppVersion.init(json: json)
+                    callback(appVersion, json, nil)
+                }
+            }
+        })
+        
+        task.taskDescription = FetchServiceStatus
+
+        if retryStatus == .reachMax {
+            cancelRequest(identifier: FetchServiceStatus, callback: {
+                print("cancelFinished")
+            })
+        }
+        
+        retryCount += 1
+
+        task.resume()
+        session.finishTasksAndInvalidate()
     }
 
-    private func cancelRequest(identifier:String,callback:(()->Void)?){
+    private func cancelRequest(identifier: String, callback: (()->Void)?){
 
         self.session.getTasksWithCompletionHandler({ (dataTask, uploadTask, downloadTask) -> Void in
 
@@ -63,14 +107,15 @@ class ServiceStatusAPI:ServiceStatusAPIDelegate {
             allTasks.addingObjects(from: downloadTask)
 
             if allTasks.count > 0{
-                for task:URLSessionTask in allTasks as! [URLSessionDataTask]{
-                    if task.taskDescription == identifier{
+                for task: URLSessionTask in allTasks as! [URLSessionDataTask]{
+                    if task.taskDescription == identifier {
+                        self.retryCount -= 1
                         task.cancel()
                     }
                 }
             }
 
-            if callback != nil{
+            if callback != nil {
                 callback!()
             }
         })
