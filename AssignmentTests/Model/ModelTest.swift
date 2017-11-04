@@ -17,19 +17,19 @@ class ModelTests: XCTestCase {
         super.tearDown()
     }
 
-    private func loadData(fileName:String,type:String) -> [String:Any]? {
+    private func loadData(fileName: String, type: String) -> [String: Any]? {
         guard let path = Bundle(for: type(of: self)).path(forResource: fileName, ofType: type) else {
-            XCTAssert(false, "can not find path")
+            XCTFail("can not find path")
             return nil
         }
 
         guard let loadData = NSData(contentsOfFile: path)  else {
-            XCTAssert(false, "can not load")
+            XCTFail("can not load")
             return nil
         }
 
         guard let dic = try? JSONSerialization.jsonObject(with: loadData as Data, options: []) as? [String: Any] else {
-            XCTAssert(false, "unable convert to dictionary")
+            XCTFail("unable convert to dictionary")
             return nil
         }
 
@@ -48,4 +48,19 @@ class ModelTests: XCTestCase {
         }
     }
 
+    func testSuccessCallback() {
+        let data = loadData(fileName: "success", type: "json")
+        if let appVersion = AppVersion.init(json: data) {
+            XCTAssertTrue(appVersion.must_update, "AppVersion parse wrong with success callback")
+        }
+        else {
+            XCTFail("AppVersion can't parse from json")
+        }
+    }
+    
+    func testFailCallback() {
+        let data = loadData(fileName: "fail", type: "json")
+        let appVersion = AppVersion.init(json: data)
+        XCTAssertNil(appVersion, "AppVersion shouldn't parse anything")
+    }
 }
