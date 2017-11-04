@@ -51,7 +51,6 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
      *************/
 
     func fetchServiceStatus(callback: @escaping StatusAPICompletion) {
-//        let error = NSError(domain: ServiceStatusAPIDomain, code: 0, userInfo: nil)
         
         let sessionConfig = URLSessionConfiguration.default
         
@@ -90,7 +89,7 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
         session.finishTasksAndInvalidate()
     }
 
-    private func cancelRequest(identifier: String, callback: (()->Void)?){
+    private func cancelRequest(identifier: String, callback: (()->Void)?) {
 
         self.session.getTasksWithCompletionHandler({ (dataTask, uploadTask, downloadTask) -> Void in
 
@@ -98,16 +97,16 @@ class ServiceStatusAPI: ServiceStatusAPIDelegate {
             allTasks.addingObjects(from: uploadTask)
             allTasks.addingObjects(from: downloadTask)
 
-            if allTasks.count > 0{
-                for task: URLSessionTask in allTasks as! [URLSessionDataTask]{
+            if let allTasks = allTasks as? [URLSessionDataTask] {
+                for task in allTasks {
                     if task.taskDescription == identifier {
                         task.cancel()
                     }
                 }
             }
 
-            if callback != nil {
-                callback!()
+            if let callback = callback {
+                callback()
             }
         })
     }

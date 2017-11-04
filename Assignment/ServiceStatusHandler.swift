@@ -18,26 +18,26 @@ class ServiceStatusHandler {
      MUST retry if not reach retry count. Hint:retryOrFail
      *******/
 
-    func start(apiHandler: ServiceStatusAPIDelegate = ServiceStatusAPI()){
-
+    func start(apiHandler: ServiceStatusAPIDelegate = ServiceStatusAPI()) {
+        
         apiHandler.fetchServiceStatus() { (version, json, error) -> Void in
             guard let delegate = self.delegate else { return }
 
             if let _ = error {
                 self.retryOrFail(apiHandler: apiHandler, json: json, error: error)
             }
-            else {
+            
+            if let version = version {
                 delegate.endSuccess()
                 
-                if let version = version {
-                    if version.must_update {
-                        delegate.showVersionForceUpdateAlert(message: version.update_message)
-                    }
-                    if version.suggest_update {
-                        delegate.showVersionSuggestUpdateAlert(message: version.update_message)
-                    }
+                if version.must_update {
+                    delegate.showVersionForceUpdateAlert(message: version.update_message)
+                }
+                if version.suggest_update {
+                    delegate.showVersionSuggestUpdateAlert(message: version.update_message)
                 }
             }
+            
         }
     }
 
@@ -49,7 +49,7 @@ class ServiceStatusHandler {
             delegate.endFailure()
         } else {
             apiHandler.retryCount += 1
-            self.start(apiHandler: apiHandler )
+            self.start(apiHandler: apiHandler)
         }
     }
 }
